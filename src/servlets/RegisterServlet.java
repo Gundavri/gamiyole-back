@@ -5,6 +5,7 @@ import constant.Constants;
 import database.DatabaseController;
 import models.User;
 import org.json.JSONObject;
+import shared.Shared;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,11 +19,13 @@ import java.util.Date;
 public class RegisterServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
         JSONObject jsonObject, resObject = new JSONObject();
         DatabaseController dbController = DatabaseController.getInstance();
 
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
+        response.addHeader("Access-Control-Allow-Origin", "*");
 
         try {
             jsonObject = Shared.getBodyAsJSON(request);
