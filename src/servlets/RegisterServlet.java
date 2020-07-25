@@ -18,14 +18,18 @@ import java.util.Date;
 @WebServlet(name = "RegisterServlet", urlPatterns = "/register")
 public class RegisterServlet extends HttpServlet {
 
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        String jwt = req.getHeader("Authorization");
+//        jwt = jwt.substring(jwt.indexOf(" ") + 1);
+    }
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         JSONObject jsonObject, resObject = new JSONObject();
         DatabaseController dbController = DatabaseController.getInstance();
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("utf-8");
-        response.addHeader("Access-Control-Allow-Origin", "*");
+        Shared.initializeResponse(response);
 
         try {
             jsonObject = Shared.getBodyAsJSON(request);
@@ -67,7 +71,7 @@ public class RegisterServlet extends HttpServlet {
 
         String token = "";
         try {
-            token = Auth.GenerateJWT(email, new Date().getTime() + Constants.JWT_MINUTES * 60 * 1000);
+            token = Auth.generateJWT(email, new Date().getTime() + Constants.JWT_MINUTES * 60 * 1000);
         } catch (Exception e) {
             resObject.put("error", Constants.INTERNAL_SERVER_ERROR_MSG);
             response.setStatus(500);
