@@ -4,7 +4,7 @@ import auth.Auth;
 import constant.Constants;
 import org.json.JSONObject;
 import shared.Shared;
-
+import java.net.URLEncoder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 @WebServlet(name = "DestinationAutoCompleteServlet", urlPatterns = "/destination-autocomplete")
 public class DestinationAutoCompleteServlet extends HttpServlet {
@@ -38,8 +39,12 @@ public class DestinationAutoCompleteServlet extends HttpServlet {
             return;
         }
 
+        String place = request.getParameter("place");
+        if(place.equals("")) {
+            place = "a";
+        }
         URL url = new URL(Constants.GOOGLE_API_BASE_URL + "place/autocomplete/json?input=" +
-                    request.getParameter("place") + "&key=" + Constants.GOOGLE_API_KEY);
+                URLEncoder.encode(place, StandardCharsets.UTF_8.toString()) + "&key=" + Constants.GOOGLE_API_KEY);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 

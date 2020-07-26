@@ -11,7 +11,7 @@ public class DatabaseController {
     public static final String DB_SERVER_IP = "127.0.0.1";
     public static final String DB_DATABASE_NAME = "Gamiyole"; // Put your DB name
     public static final String DB_USERNAME = "root"; // Put your username
-    public static final String DB_PASSWORD = "password"; // Put your password
+    public static final String DB_PASSWORD = "nikolozo4"; // Put your password
 
     private Connection con;
     private static DatabaseController dbInstance;
