@@ -14,7 +14,7 @@ create table USER (
     password varchar(1000) not null, 
     email varchar(63) not null UNIQUE,
     surname varchar(63) not null,
-    img_dest varchar(255),
+    img blob,
     phone int,
     creation_date TIMESTAMP default CURRENT_TIMESTAMP,
     update_date TIMESTAMP on update CURRENT_TIMESTAMP default CURRENT_TIMESTAMP, 
@@ -33,4 +33,4 @@ insert into USER(name, password, email, surname) values
 
 SET FOREIGN_KEY_CHECKS=1;
 
-select * from user
+select * from USER;

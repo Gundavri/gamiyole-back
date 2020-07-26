@@ -3,6 +3,7 @@ package database;
 import constant.Constants;
 import models.User;
 
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +11,8 @@ import java.util.List;
 public class DatabaseController {
     public static final String DB_SERVER_IP = "127.0.0.1";
     public static final String DB_DATABASE_NAME = "Gamiyole"; // Put your DB name
-    public static final String DB_USERNAME = "root"; // Put your username
-    public static final String DB_PASSWORD = "password"; // Put your password
+    public static final String DB_USERNAME = "gamiyole"; // Put your username
+    public static final String DB_PASSWORD = "1234"; // Put your password
 
     private Connection con;
     private static DatabaseController dbInstance;
@@ -75,6 +76,19 @@ public class DatabaseController {
             if(res == 0) throw new Exception(Constants.USER_NOT_FOUND_MSG);
         } catch (SQLException e) {
             throw new Exception(Constants.INTERNAL_SERVER_ERROR_MSG);
+        }
+    }
+
+    public void insertIMG(String email, InputStream inputStream) throws Exception {
+        String query = "update USER set ? where email = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setBlob(1, inputStream);
+            ps.setString(2,email);
+            int res = ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e);
+            throw new Exception(e);
         }
     }
 

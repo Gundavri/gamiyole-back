@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 
 @WebServlet(name = "ProfileServlet", urlPatterns = "/profile")
 public class ProfileServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         // Set response content type
         response.setContentType("text/html");
 
