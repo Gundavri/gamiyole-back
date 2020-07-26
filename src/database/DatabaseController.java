@@ -66,6 +66,18 @@ public class DatabaseController {
         }
     }
 
+    public void deleteUser(String email) throws Exception {
+        String query = "delete from USER as u where u.email = ?;";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, email);
+            int res = ps.executeUpdate();
+            if(res == 0) throw new Exception(Constants.USER_NOT_FOUND_MSG);
+        } catch (SQLException e) {
+            throw new Exception(Constants.INTERNAL_SERVER_ERROR_MSG);
+        }
+    }
+
     private List<User> transformToUser(ResultSet rs) throws SQLException {
         List<User> list = new ArrayList<>();
         while(rs.next()){

@@ -39,4 +39,14 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        User u = (User) obj;
+        return  u == this ||
+                (u.getName().equals(name) &&
+                u.getSurname().equals(surname) &&
+                u.getEmail().equals(email) &&
+                u.getPassword().equals(password));
+    }
 }
