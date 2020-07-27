@@ -49,7 +49,7 @@ public class DestinationAutoCompleteServlet extends HttpServlet {
         con.setRequestMethod("GET");
 
         BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
+                new InputStreamReader(con.getInputStream(), "UTF-8"));
         String inputLine;
         StringBuffer content = new StringBuffer();
         while ((inputLine = in.readLine()) != null) {
