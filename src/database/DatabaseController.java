@@ -6,6 +6,7 @@ import models.User;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class DatabaseController {
@@ -80,14 +81,25 @@ public class DatabaseController {
     }
 
     public void insertIMG(String email, InputStream inputStream) throws Exception {
-        String query = "update USER set ? where email = ?";
+        String query = "update USER set img = ? where email = ?";
         try {
             PreparedStatement ps = con.prepareStatement(query);
             ps.setBlob(1, inputStream);
             ps.setString(2,email);
             int res = ps.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e);
+            throw new Exception(e);
+        }
+    }
+
+    public String getIMG(String email) throws Exception {
+        String query = "SELECT img FROM USER where email = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1,email);
+            ResultSet res = ps.executeQuery();
+            return res.getString("img");
+        } catch (SQLException e) {
             throw new Exception(e);
         }
     }
