@@ -3,8 +3,10 @@ package database;
 import constant.Constants;
 import models.User;
 
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class DatabaseController {
@@ -78,6 +80,30 @@ public class DatabaseController {
         }
     }
 
+    public void insertIMG(String email, InputStream inputStream) throws Exception {
+        String query = "update USER set img = ? where email = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setBlob(1, inputStream);
+            ps.setString(2,email);
+            int res = ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new Exception(e);
+        }
+    }
+
+    public String getIMG(String email) throws Exception {
+        String query = "SELECT img FROM USER where email = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1,email);
+            ResultSet res = ps.executeQuery();
+            return res.getString("img");
+        } catch (SQLException e) {
+            throw new Exception(e);
+        }
+    }
+
     private List<User> transformToUser(ResultSet rs) throws SQLException {
         List<User> list = new ArrayList<>();
         while(rs.next()){
@@ -86,6 +112,8 @@ public class DatabaseController {
           u.setName(rs.getString(User.NAME_COLUMN));
           u.setSurname(rs.getString(User.SURNAME_COLUMN));
           u.setPassword(rs.getString(User.PASSWORD_COLUMN));
+          u.setAge(rs.getInt(User.AGE_COLUMN));
+          u.setPhone(rs.getString(User.PHONE_COLUMN));
           list.add(u);
         }
         return list;
