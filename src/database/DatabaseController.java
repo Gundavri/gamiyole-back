@@ -112,6 +112,8 @@ public class DatabaseController {
           u.setName(rs.getString(User.NAME_COLUMN));
           u.setSurname(rs.getString(User.SURNAME_COLUMN));
           u.setPassword(rs.getString(User.PASSWORD_COLUMN));
+          u.setAge(rs.getInt(User.AGE_COLUMN));
+          u.setPhone(rs.getString(User.PHONE_COLUMN));
           list.add(u);
         }
         return list;

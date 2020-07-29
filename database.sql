@@ -14,9 +14,9 @@ create table USER (
     password varchar(1000) not null, 
     email varchar(63) not null UNIQUE,
     surname varchar(63) not null,
-    age integer not null,
+    age integer,
     img blob,
-    phone varchar(20) not null,
+    phone varchar(20),
     creation_date TIMESTAMP default CURRENT_TIMESTAMP,
     update_date TIMESTAMP on update CURRENT_TIMESTAMP default CURRENT_TIMESTAMP, 
     primary key (user_id)  
