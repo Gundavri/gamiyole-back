@@ -7,7 +7,13 @@ import org.json.JSONObject;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +44,8 @@ public class MatcherEndpoint {
     @OnMessage
     public void onMessage(Session session, Message message, @PathParam("token") String token) throws IOException, EncodeException {
         if(!checkAuth(session, token, message)) return;
+        System.out.println(message);
+        setLatLng(message);
         if(message.isGamiyole()) {
             gamyolebi.put(session.getId(), message);
             gamyoli(session);
@@ -90,6 +98,31 @@ public class MatcherEndpoint {
             session.close();
             return false;
         }
+    }
+
+    private void setLatLng(Message message) throws IOException {
+        String place = message.getDestination();
+        URL url = new URL(Constants.GOOGLE_API_BASE_URL + "place/findplacefromtext/json?inputtype=textquery&fields=geometry&input=" +
+                URLEncoder.encode(place, StandardCharsets.UTF_8.toString()) + "&key=" + Constants.GOOGLE_API_KEY);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), "UTF-8"));
+        String inputLine;
+        StringBuffer content = new StringBuffer();
+        while ((inputLine = in.readLine()) != null) {
+            content.append(inputLine);
+        }
+        in.close();
+
+        con.disconnect();
+
+        JSONObject coordObj = new JSONObject(content.toString()).getJSONArray("candidates")
+                                    .getJSONObject(0).getJSONObject("geometry").getJSONObject("location");
+
+        message.setLat(coordObj.get("lat").toString());
+        message.setLng(coordObj.get("lng").toString());
     }
 
 }

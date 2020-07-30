@@ -7,6 +7,7 @@ public class Message {
     private String endTime;
     private String time;
     private String destination;
+    private String lat, lng;
     private int seats;
     private String content;
     private boolean fromUni;
@@ -75,9 +76,26 @@ public class Message {
         this.seats = seats;
     }
 
+    public String getLat() {
+        return lat;
+    }
+
+    public void setLat(String lat) {
+        this.lat = lat;
+    }
+
+    public String getLng() {
+        return lng;
+    }
+
+    public void setLng(String lng) {
+        this.lng = lng;
+    }
+
     @Override
     public String toString() {
         return "gamiyole: " + gamiyole + ", startTime: " + startTime + ", endTime: " + endTime
-                + ", time: " + time + ", location: " + destination + ", seats: " + seats;
+                + ", time: " + time + ", location: " + destination + ", seats: " + seats
+                + ", lat: " + lat + ", lng: " + lng;
     }
 }

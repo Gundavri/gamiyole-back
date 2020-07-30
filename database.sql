@@ -22,6 +22,7 @@ create table USER (
 );
 
 insert into USER(name, password, email, surname) values
+	('asdasd', '$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'asd@asd.com', 'asdasd'),
 	('abcd', '$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'asdizxc1@zsc.com', 'asdaszxcqwe'),
     ('abcd', '$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'asdizxc2@zsc.com', 'asdaszxcqwe'),
     ('abcd', '$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'asdizxc3@zsc.com', 'asdaszxcqwe'),
