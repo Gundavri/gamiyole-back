@@ -49,10 +49,31 @@ public class MatcherEndpoint {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(message.isGamiyole()) {
+
+        if(message.getContent() != null) {
+            JSONObject contentObj = new JSONObject(message.getContent());
+            if(contentObj.has("gamyoleliAccepted")) {
+                for (MatcherEndpoint me : matcherEndpoints) {
+                    Session ses = me.session;
+                    if(gamyolebi.keySet().contains(ses.getId()) && gamyolebi.get(ses.getId()).getEmail().equals(contentObj.get("email"))) {
+                        System.out.println("email " + contentObj.get("email"));
+                        JSONObject obj = new JSONObject();
+                        obj.put("chosenBy", wamyolebi.get(session.getId()));
+                        obj.put("isWamyole", true);
+                        Message msg = new Message();
+                        message.setContent(obj.toString());
+                        ses.getBasicRemote().sendObject(msg);
+                        return;
+                    }
+                }
+            }
+        }
+
+
+        if(message.isGamiyole() && !gamyolebi.containsKey(session.getId())) {
             gamyolebi.put(session.getId(), message);
             gamyoli(session);
-        } else {
+        } else if(!wamyolebi.containsKey(session.getId())) {
             wamyolebi.put(session.getId(), message);
             wamyoli(session);
         }
@@ -68,6 +89,7 @@ public class MatcherEndpoint {
 //        message.setFrom(users.get(session.getId()));
 //        message.setContent("disconnected!");
 //        broadcast(message);
+        matcherEndpoints.remove(this);
         System.out.println("Session closed! Don't match him to others.");
     }
 
@@ -76,17 +98,28 @@ public class MatcherEndpoint {
 
     }
 
-    private void gamyoli(Session session) {
-        for (String wamyolisSession:
-             wamyolebi.keySet()) {
-
+    private void gamyoli(Session session) throws IOException, EncodeException {
+        for (MatcherEndpoint me : matcherEndpoints) {
+            Session ses = me.session;
+            if(wamyolebi.keySet().contains(ses.getId())) {
+                try {
+                    sendAllGamyoli(ses);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     private void wamyoli(Session session) throws IOException, EncodeException {
+        sendAllGamyoli(session);
+    }
+
+    private void sendAllGamyoli(Session session) throws IOException, EncodeException {
         Object[] toSend = gamyolebi.values().toArray();
         JSONObject obj = new JSONObject();
         obj.put("arr", toSend);
+        obj.put("isGamyoleebi", true);
         Message message = new Message();
         message.setContent(obj.toString());
         session.getBasicRemote().sendObject(message);
