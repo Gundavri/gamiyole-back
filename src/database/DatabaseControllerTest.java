@@ -99,6 +99,20 @@ class DatabaseControllerTest {
     }
 
     @Test
+    void testUpdateUser1() {
+        DatabaseController dbController = DatabaseController.getInstance();
+        try {
+            User u = new User();
+            u.setEmail("asdasdasdasdsadsa@asdasd.ge");// Email that doesnot exists
+            u.setPhone("+9931231231");
+            u.setSurname("asda");
+            u.setName("zosadasd");
+            dbController.updateUser(u);
+        } catch (Exception e) {
+            assertEquals(Constants.USER_NOT_FOUND_MSG, e.getMessage());
+        }
+    }
+    @Test
     void getUserToVerifyFromDB1() {
         DatabaseController dbController = DatabaseController.getInstance();
         UserToVerify u = null;
@@ -110,6 +124,25 @@ class DatabaseControllerTest {
         }
     }
 
+    @Test
+    void testUpdateUser2() {
+        DatabaseController dbController = DatabaseController.getInstance();
+        try {
+            User u = new User();
+            u.setEmail("gpat14@agruni.edu.ge");// Email exists
+            u.setPhone("+9931231231");
+            u.setSurname("asda");
+            u.setName("zosadasd");
+            dbController.insertUser(u);
+
+            u.setName("test");
+            dbController.updateUser(u);
+            User testUser = dbController.getUserFromDB("gpat14@agruni.edu.ge");
+            assertEquals(u.getName(), testUser.getName());
+          } catch (Exception e) {
+            assertEquals(Constants.USER_NOT_FOUND_MSG, e.getMessage());
+        }
+    }
     @Test
     void insertUserToVerify1() {
         final String name = "mixo", surname = "mixoshvili", email = "mixo@mixo.mixo", password = "viri123", hash="zxcjiasjdokqweokizjxcizxc";

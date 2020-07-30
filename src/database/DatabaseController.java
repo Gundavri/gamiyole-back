@@ -13,8 +13,8 @@ import java.util.List;
 public class DatabaseController {
     public static final String DB_SERVER_IP = "127.0.0.1";
     public static final String DB_DATABASE_NAME = "Gamiyole"; // Put your DB name
-    public static final String DB_USERNAME = "root"; // Put your username
-    public static final String DB_PASSWORD = ""; // Put your password
+    public static final String DB_USERNAME = "gamiyole"; // Put your username
+    public static final String DB_PASSWORD = "1234"; // Put your password
 
     private Connection con;
     private static DatabaseController dbInstance;
@@ -75,6 +75,21 @@ public class DatabaseController {
             if(res == 0) throw new Exception(Constants.USER_NOT_FOUND_MSG);
         } catch (SQLException e) {
             throw new Exception(Constants.INTERNAL_SERVER_ERROR_MSG);
+        }
+    }
+
+    public void updateUser(User user) throws Exception {
+        String query = "update USER set name = ?, surname = ?, phone = ? where email = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getSurname());
+            ps.setString(3, user.getPhone());
+            ps.setString(4, user.getEmail());
+            int res = ps.executeUpdate();
+            if(res == 0) throw new Exception(Constants.USER_NOT_FOUND_MSG);
+        } catch (SQLException e) {
+            throw new Exception(e);
         }
     }
 
