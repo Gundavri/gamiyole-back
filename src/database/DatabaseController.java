@@ -80,6 +80,21 @@ public class DatabaseController {
         }
     }
 
+    public void updateUser(User user) throws Exception {
+        String query = "update USER set name = ?, surname = ?, phone = ? where email = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getSurname());
+            ps.setString(3, user.getPhone());
+            ps.setString(4, user.getEmail());
+            int res = ps.executeUpdate();
+            if(res == 0) throw new Exception(Constants.USER_NOT_FOUND_MSG);
+        } catch (SQLException e) {
+            throw new Exception(e);
+        }
+    }
+
     public void insertIMG(String email, InputStream inputStream) throws Exception {
         String query = "update USER set img = ? where email = ?";
         try {
