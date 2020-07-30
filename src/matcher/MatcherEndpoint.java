@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -35,17 +36,19 @@ public class MatcherEndpoint {
         if(!checkAuth(session, token, new Message())) return;
         this.session = session;
         matcherEndpoints.add(this);
-        Message message = new Message();
-        message.setContent("Please send information about you");
-        this.session.getBasicRemote().sendObject(message);
         System.out.println("Session opened!");
+        fill();
     }
 
     @OnMessage
     public void onMessage(Session session, Message message, @PathParam("token") String token) throws IOException, EncodeException {
         if(!checkAuth(session, token, message)) return;
         System.out.println(message);
-        setLatLng(message);
+        try {
+            setLatLng(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if(message.isGamiyole()) {
             gamyolebi.put(session.getId(), message);
             gamyoli(session);
@@ -80,8 +83,13 @@ public class MatcherEndpoint {
         }
     }
 
-    private void wamyoli(Session session) {
-
+    private void wamyoli(Session session) throws IOException, EncodeException {
+        Object[] toSend = gamyolebi.values().toArray();
+        JSONObject obj = new JSONObject();
+        obj.put("arr", toSend);
+        Message message = new Message();
+        message.setContent(obj.toString());
+        session.getBasicRemote().sendObject(message);
     }
 
     private boolean checkAuth(Session session, String token, Message message) throws IOException, EncodeException {
@@ -123,6 +131,14 @@ public class MatcherEndpoint {
 
         message.setLat(coordObj.get("lat").toString());
         message.setLng(coordObj.get("lng").toString());
+    }
+
+    private void fill() {
+        gamyolebi.put("1", new Message());
+        gamyolebi.put("5", new Message());
+        gamyolebi.put("4", new Message());
+        gamyolebi.put("3", new Message());
+        gamyolebi.put("2", new Message());
     }
 
 }
