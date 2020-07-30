@@ -25,6 +25,7 @@ public class ProfileServlet extends HttpServlet {
         User user;
         try {
             user = dbController.getUserFromDB(email);
+            if(user == null) throw new Exception(Constants.USER_NOT_FOUND_MSG);
         } catch (Exception e) {
             if (e.getMessage().equals(Constants.USER_NOT_FOUND_MSG)) {
                 response.setStatus(404);
