@@ -6,6 +6,9 @@ public class Constants {
     public static final int JWT_MINUTES = 60;
     public static final String GOOGLE_API_KEY = "AIzaSyCAqZrL_-ZKPZ4q4gd_ct4SsLB39md6dd0";
     public static final String GOOGLE_API_BASE_URL = "https://maps.googleapis.com/maps/api/";
+    public static final String EMAIL = "fordevelopment2020@gmail.com";
+    public static final String EMAIL_PASSWORD = "nikolozo4";
+    public static final String FRONT_BASE_URL = "http://127.0.0.1:3000/";
 
     public static final String USER_NOT_FOUND_MSG = "User not found";
     public static final String USER_FOUND_MSG = "User already found";
