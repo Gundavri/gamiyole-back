@@ -14,10 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @ServerEndpoint(
@@ -30,6 +27,8 @@ public class MatcherEndpoint {
     private Session session;
     private static Map<String, Message> wamyolebi = new HashMap<>(), gamyolebi = new HashMap<>();
     private static final Set<MatcherEndpoint> matcherEndpoints = new CopyOnWriteArraySet<>();
+    private static Map<String, Set<String>> acceptedGamyolebi = new HashMap<>(), declinedGamyolebi = new HashMap<>();
+    private static Map<String, String> sessionIdsByEmail = new HashMap<>();
 
     @OnOpen
     public void onOpen(Session session, @PathParam("token") String token) throws IOException, EncodeException {
@@ -37,59 +36,104 @@ public class MatcherEndpoint {
         this.session = session;
         matcherEndpoints.add(this);
         System.out.println("Session opened!");
-        fill();
+       // fill();
     }
 
     @OnMessage
     public void onMessage(Session session, Message message, @PathParam("token") String token) throws IOException, EncodeException {
         if(!checkAuth(session, token, message)) return;
-        System.out.println(message);
-        try {
-            setLatLng(message);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(!sessionIdsByEmail.containsKey(message.getEmail())) {
+            sessionIdsByEmail.put(message.getEmail(), session.getId());
+        }
+        if(message.getDestination()!=null) {
+            try {
+                setLatLng(message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         if(message.getContent() != null) {
             JSONObject contentObj = new JSONObject(message.getContent());
-            if(contentObj.has("gamyoleliAccepted")) {
-                for (MatcherEndpoint me : matcherEndpoints) {
-                    Session ses = me.session;
-                    if(gamyolebi.keySet().contains(ses.getId()) && gamyolebi.get(ses.getId()).getEmail().equals(contentObj.get("email"))) {
-                        System.out.println("email " + contentObj.get("email"));
-                        JSONObject obj = new JSONObject();
-                        obj.put("chosenBy", wamyolebi.get(session.getId()));
-                        obj.put("isWamyole", true);
-                        Message msg = new Message();
-                        message.setContent(obj.toString());
-                        ses.getBasicRemote().sendObject(msg);
-                        return;
+            if (contentObj.has("key")) {
+                if (contentObj.getString("key").equals("Accapted Gamyoli")) {
+                    if (!acceptedGamyolebi.containsKey(session.getId())) {
+                        acceptedGamyolebi.put(session.getId(), new HashSet<>());
+                    }
+                    acceptedGamyolebi.get(session.getId()).add(sessionIdsByEmail.get(contentObj.getString("email")));
+                    for (MatcherEndpoint me : matcherEndpoints) {
+                        synchronized (me) {
+                            Session ses = me.session;
+                            if(gamyolebi.containsKey(ses.getId()) && ses.getId().equals(sessionIdsByEmail.get(contentObj.getString("email")))) {
+                                JSONObject obj = new JSONObject();
+                                JSONObject cont = new JSONObject(wamyolebi.get(session.getId()));
+                                cont.put("email", wamyolebi.get(session.getId()).getEmail());
+                                obj.put("chosenBy", cont);
+                                obj.put("isWamyole", true);
+                                Message msg = new Message();
+                                msg.setContent(obj.toString());
+                                ses.getBasicRemote().sendObject(msg);
+                                return;
+                            }
+                        }
+                    }
+                } else if (contentObj.getString("key").equals("Declined Gamyoli")) {
+                    if (!declinedGamyolebi.containsKey(session.getId())) {
+                        declinedGamyolebi.put(session.getId(), new HashSet<>());
+                    }
+                    declinedGamyolebi.get(session.getId()).add(sessionIdsByEmail.get(contentObj.getString("email")));
+                } else if (contentObj.getString("key").equals("Accepted Wamyoli")) {
+                    Message msg = new Message();
+                    JSONObject cont = new JSONObject();
+                    cont.put("timeToChat", "YES");
+                    msg.setContent(cont.toString());
+                    session.getBasicRemote().sendObject(msg);
+                    String sesId = sessionIdsByEmail.get(contentObj.getString("email"));
+                    for (MatcherEndpoint me : matcherEndpoints) {
+                        synchronized (me) {
+                            Session ses = me.session;
+                            if(ses.getId().equals(sesId)) {
+                                ses.getBasicRemote().sendObject(msg);
+                                return;
+                            }
+                        }
                     }
                 }
             }
         }
 
-
-        if(message.isGamiyole() && !gamyolebi.containsKey(session.getId())) {
-            gamyolebi.put(session.getId(), message);
+        if(message.isGamiyole()) {
+            if(!gamyolebi.containsKey(session.getId()))
+                gamyolebi.put(session.getId(), message);
             gamyoli(session);
-        } else if(!wamyolebi.containsKey(session.getId())) {
-            wamyolebi.put(session.getId(), message);
+        } else {
+            if(!wamyolebi.containsKey(session.getId()))
+                wamyolebi.put(session.getId(), message);
             wamyoli(session);
         }
-
-        System.out.println(token);
-        System.out.println(message);
     }
 
     @OnClose
     public void onClose(Session session) throws IOException, EncodeException {
-//        chatEndpoints.remove(this);
-//        Message message = new Message();
-//        message.setFrom(users.get(session.getId()));
-//        message.setContent("disconnected!");
-//        broadcast(message);
         matcherEndpoints.remove(this);
+        if(wamyolebi.containsKey(session.getId())) {
+            wamyolebi.remove(session.getId());
+        }
+        if(gamyolebi.containsKey(session.getId())) {
+            gamyolebi.remove(session.getId());
+            for (MatcherEndpoint me : matcherEndpoints) {
+                synchronized (me) {
+                    Session ses = me.session;
+                    if (wamyolebi.keySet().contains(ses.getId())) {
+                        try {
+                            sendAllGamyoli(ses);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
         System.out.println("Session closed! Don't match him to others.");
     }
 
@@ -100,12 +144,14 @@ public class MatcherEndpoint {
 
     private void gamyoli(Session session) throws IOException, EncodeException {
         for (MatcherEndpoint me : matcherEndpoints) {
-            Session ses = me.session;
-            if(wamyolebi.keySet().contains(ses.getId())) {
-                try {
-                    sendAllGamyoli(ses);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            synchronized (me) {
+                Session ses = me.session;
+                if (wamyolebi.keySet().contains(ses.getId())) {
+                    try {
+                        sendAllGamyoli(ses);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -117,6 +163,9 @@ public class MatcherEndpoint {
 
     private void sendAllGamyoli(Session session) throws IOException, EncodeException {
         Object[] toSend = gamyolebi.values().toArray();
+        toSend = Arrays.stream(toSend).filter(x -> (
+                ((Message) x).isFromUni() && wamyolebi.get(session.getId()).isFromUni())
+                || (!((Message) x).isFromUni() && !wamyolebi.get(session.getId()).isFromUni())).toArray();
         JSONObject obj = new JSONObject();
         obj.put("arr", toSend);
         obj.put("isGamyoleebi", true);

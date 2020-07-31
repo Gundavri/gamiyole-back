@@ -10,6 +10,15 @@ public class Message {
     private String lat, lng;
     private int seats;
     private String content;
+
+    public boolean isFromUni() {
+        return fromUni;
+    }
+
+    public void setFromUni(boolean fromUni) {
+        this.fromUni = fromUni;
+    }
+
     private boolean fromUni;
 
     public String getEmail() {
