@@ -23,7 +23,7 @@ create table USER (
 );
 
 insert into USER(name, surname, age, phone, password, email) values
-    ('asdasd', 'Patrick', 20, '+995595341221', '$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'asd@asd.com', 'asdasd'),
+    ('asdasd', 'Patrick', 20, '+995595341221', '$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'asd@asd.com'),
 	('Gary', 'Patrick', 20, '+995595341221','$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'gpat14@agruni.edu.ge'),
     ('Jerica', 'Walker', 23, '+995595345254', '$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'jwal17@freeuni.edu.ge'),
     ('Sophie', 'Lee', 21, '+995595451221','$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'slee17@agruni.edu.ge'),
@@ -49,3 +49,4 @@ create table USER_TO_VERIFY (
 
 
 SET FOREIGN_KEY_CHECKS=1;
+select * from USER_TO_VERIFY
