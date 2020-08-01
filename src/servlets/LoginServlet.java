@@ -49,6 +49,7 @@ public class LoginServlet extends HttpServlet {
         String hashedPassword = "";
         try {
             User user = dbController.getUserFromDB(email);
+            if(user == null) throw new Exception(Constants.USER_NOT_FOUND_MSG);
             hashedPassword = user.getPassword();
         } catch (Exception e) {
             if (e.getMessage().equals(Constants.USER_NOT_FOUND_MSG)) {

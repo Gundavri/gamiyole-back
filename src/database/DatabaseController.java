@@ -2,6 +2,7 @@ package database;
 
 import constant.Constants;
 import models.User;
+import models.UserToVerify;
 
 import java.io.InputStream;
 import java.sql.*;
@@ -13,7 +14,7 @@ public class DatabaseController {
     public static final String DB_SERVER_IP = "127.0.0.1";
     public static final String DB_DATABASE_NAME = "Gamiyole"; // Put your DB name
     public static final String DB_USERNAME = "root"; // Put your username
-    public static final String DB_PASSWORD = "nikolozo4"; // Put your password
+    public static final String DB_PASSWORD = ""; // Put your password
 
     private Connection con;
     private static DatabaseController dbInstance;
@@ -45,10 +46,7 @@ public class DatabaseController {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             List<User> users = transformToUser(rs);
-            if(users.size() == 0) {
-                throw new Exception(Constants.USER_NOT_FOUND_MSG);
-            }
-            return users.get(0);
+            return users.size() != 0 ? users.get(0) : null;
         } catch (SQLException e) {
             throw new Exception(Constants.INTERNAL_SERVER_ERROR_MSG);
         }
@@ -80,8 +78,23 @@ public class DatabaseController {
         }
     }
 
+    public void updateUser(User user) throws Exception {
+        String query = "update USER set name = ?, surname = ?, phone = ? where email = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getSurname());
+            ps.setString(3, user.getPhone());
+            ps.setString(4, user.getEmail());
+            int res = ps.executeUpdate();
+            if(res == 0) throw new Exception(Constants.USER_NOT_FOUND_MSG);
+        } catch (SQLException e) {
+            throw new Exception(e);
+        }
+    }
+
     public void insertIMG(String email, InputStream inputStream) throws Exception {
-        String query = "update USER set img = ? where email = ?";
+        String query = "update USER set img = ? where email = ?;";
         try {
             PreparedStatement ps = con.prepareStatement(query);
             ps.setBlob(1, inputStream);
@@ -93,7 +106,7 @@ public class DatabaseController {
     }
 
     public String getIMG(String email) throws Exception {
-        String query = "SELECT img FROM USER where email = ?";
+        String query = "SELECT img FROM USER where email = ?;";
         try {
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1,email);
@@ -101,6 +114,49 @@ public class DatabaseController {
             return res.getString("img");
         } catch (SQLException e) {
             throw new Exception(e);
+        }
+    }
+
+
+    public UserToVerify getUserToVerifyFromDB(String hash) throws Exception {
+        String query = "select * from USER_TO_VERIFY where random_hash = ?;";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, hash);
+            ResultSet rs = ps.executeQuery();
+            List<UserToVerify> users = transformToUserToVerify(rs);
+            return users.size() != 0 ? users.get(0) : null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new Exception(Constants.INTERNAL_SERVER_ERROR_MSG);
+        }
+    }
+
+    public void insertUserToVerify(UserToVerify userToVerify) throws Exception {
+        String query = "insert into USER_TO_VERIFY(name, password, email, surname, random_hash) values (?, ?, ?, ?, ?);";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, userToVerify.getName());
+            ps.setString(2, userToVerify.getPassword());
+            ps.setString(3, userToVerify.getEmail());
+            ps.setString(4, userToVerify.getSurname());
+            ps.setString(5, userToVerify.getRandom_hash());
+            int res = ps.executeUpdate();
+            System.out.println(res);
+        } catch (SQLException e) {
+            throw new Exception(Constants.USER_FOUND_MSG);
+        }
+    }
+
+    public void deleteUserToVerify(String hash) throws Exception {
+        String query = "delete from USER_TO_VERIFY where random_hash = ?;";
+        try {
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, hash);
+            int res = ps.executeUpdate();
+            if(res == 0) throw new Exception(Constants.USER_NOT_FOUND_MSG);
+        } catch (SQLException e) {
+            throw new Exception(Constants.INTERNAL_SERVER_ERROR_MSG);
         }
     }
 
@@ -119,4 +175,17 @@ public class DatabaseController {
         return list;
     }
 
+    private List<UserToVerify> transformToUserToVerify(ResultSet rs) throws SQLException {
+        List<UserToVerify> list = new ArrayList<>();
+        while(rs.next()){
+            UserToVerify u = new UserToVerify();
+            u.setEmail(rs.getString(UserToVerify.EMAIL_COLUMN));
+            u.setName(rs.getString(UserToVerify.NAME_COLUMN));
+            u.setSurname(rs.getString(UserToVerify.SURNAME_COLUMN));
+            u.setPassword(rs.getString(UserToVerify.PASSWORD_COLUMN));
+            u.setRandom_hash(rs.getString(UserToVerify.RANDOM_HASH_COLUMN));
+            list.add(u);
+        }
+        return list;
+    }
 }

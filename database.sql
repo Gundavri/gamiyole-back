@@ -31,6 +31,21 @@ insert into USER(name, surname, age, phone, password, email) values
     ('Hannah', 'Johnson', 19, '+995595341233', '$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'hjohn18@freeuni.edu.ge'),
     ('lasha', 'loladze', 22, '+995595931221','$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'llola16@freeeun.edu.ge'),
     ('john', 'doe', 17, '+995599349961', '$2a$11$DC3cUThCJ1Yo6R.nsse5.ucd.DhEVx.gHfvcp3D5FbAeK4U4nNFt2', 'jdoe16@freeuni.edu.ge');
+    
+
+-- users 
+drop table if exists USER_TO_VERIFY;
+create table USER_TO_VERIFY (
+	user_to_verify_id int auto_increment, 
+    name varchar(63) not null,
+    password varchar(1000) not null, 
+    email varchar(63) not null UNIQUE,
+    surname varchar(63) not null,
+    random_hash varchar(63) not null UNIQUE,
+    creation_date TIMESTAMP default CURRENT_TIMESTAMP,
+    update_date TIMESTAMP on update CURRENT_TIMESTAMP default CURRENT_TIMESTAMP, 
+    primary key (user_to_verify_id)  
+);
 
 
 SET FOREIGN_KEY_CHECKS=1;
